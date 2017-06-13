@@ -1,0 +1,9 @@
+include LICENSE *.rst
+
+# Don't package GitHub-specific files.
+exclude *.md .travis.yml
+
+# Tests
+include tox.ini .coveragerc dev-requirements.txt requirements.txt
+recursive-include tests *.py
+
