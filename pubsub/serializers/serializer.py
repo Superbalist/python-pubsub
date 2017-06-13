@@ -26,4 +26,4 @@ class JSONSerializer:
 
     @staticmethod
     def decode(message):
-        return json.loads(message.data)
+        return json.loads(message.data.decode())
