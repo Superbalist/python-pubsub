@@ -4,6 +4,6 @@ include LICENSE *.rst
 exclude *.md .travis.yml
 
 # Tests
-include tox.ini .coveragerc dev-requirements.txt
+include tox.ini .coveragerc dev-requirements.txt requirements.txt
 recursive-include tests *.py
 
