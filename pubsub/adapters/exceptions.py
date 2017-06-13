@@ -3,7 +3,7 @@ class NotFound(Exception):
     obj = None
 
     def __init__(self, obj_name):
-        super(NotFound, self).__init__(f'{self.obj} is not found: {obj_name}')
+        super(NotFound, self).__init__('{} is not found: {}'.format(self.obj, obj_name))
 
 
 class TopicNotFound(NotFound):
