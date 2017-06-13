@@ -1,0 +1,13 @@
+[run]
+branch = True
+source =
+    pubsub
+
+[paths]
+source =
+   pubsub
+   .tox/*/lib/python*/site-packages/attr
+   .tox/pypy/site-packages/attr
+
+[report]
+show_missing = True
