@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from collections import defaultdict, deque
 from unittest import TestCase
 
@@ -32,26 +33,24 @@ class ProtocolTests(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.valid_message = {
-            "schema": "http://schema.superbalist.com/events/shopping_cart/created/1.0.json",
-            "meta": {
-                "date": "2017-02-01T12:39:12+00:00",
-                "uuid": "5AB2ABB6-8617-4DDA-81F7-DD47D5882B19",
-                "service": "api",
-                "hostname": "superbalist-api-1935885982-59xk1"
+            u'meta': {
+                u'date': u'2017-02-01T12:39:12+00:00',
+                u'hostname': u'superbalist-api-1935885982-59xk1',
+                u'service': u'api',
+                u'uuid': u'5AB2ABB6-8617-4DDA-81F7-DD47D5882B19'
             },
-            "shopping_cart": {
-                "id": 1070486,
-                "is_expired": False,
-                "is_restorable": True,
-                "user": {
-                    "id": 2,
-                    "email": "matthew@superbalist.com",
-                    "first_name": "Matthew",
-                    "last_name": "Goslett"
-                },
-                "items": [
-
-                ]
+            u'schema': u'http://schema.superbalist.com/events/shopping_cart/created/1.0.json',
+            u'shopping_cart': {
+                u'id': 1070486,
+                u'is_expired': False,
+                u'is_restorable': True,
+                u'items': [],
+                u'user': {
+                    u'email': u'matthew@superbalist.com',
+                    u'first_name': u'Matthew',
+                    u'id': 2,
+                    u'last_name': u'G\u0151slett'
+                }
             }
         }
         cls.invalid_message = {'blah': 'blah'}

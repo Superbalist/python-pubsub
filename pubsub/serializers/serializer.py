@@ -8,11 +8,11 @@ class Serializer:
 
     @staticmethod
     def encode(message):
-        return message.encode()
+        return message.encode('utf-8')
 
     @staticmethod
     def decode(message):
-        return message.data.decode()
+        return message.data.decode('utf-8')
 
 
 class JSONSerializer:
@@ -22,8 +22,8 @@ class JSONSerializer:
 
     @staticmethod
     def encode(message):
-        return json.dumps(message).encode()
+        return json.dumps(message).encode('utf-8')
 
     @staticmethod
     def decode(message):
-        return json.loads(message.data.decode())
+        return json.loads(message.data.decode('utf-8'))
