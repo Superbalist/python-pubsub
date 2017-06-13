@@ -3,9 +3,9 @@
 A python abstraction for various puplisher subscribers.
 
 [![Author](http://img.shields.io/badge/author-@superbalist-blue.svg?style=flat-square)](https://twitter.com/superbalist)
-[![PyPI](https://img.shields.io/pypi/v/nine.svg?style=flat-square)](https://pypi.python.org/pypi/pubsub.py)
-[![PyPI](https://img.shields.io/pypi/pyversions/Django.svg?style=flat-square)](https://pypi.python.org/pypi/pubsub.py)
-[![Github All Releases](https://img.shields.io/github/downloads/atom/atom/total.svg?style=flat-square)](https://github.com/Superbalist/pubsub.py)
+[![PyPI](https://img.shields.io/pypi/v/pubsub.py.svg?style=flat-square)](https://pypi.python.org/pypi/pubsub.py)
+[![PyPI](https://img.shields.io/pypi/pyversions/pubsub.py.svg?style=flat-square)](https://pypi.python.org/pypi/pubsub.py)
+[![Github All Releases](https://img.shields.io/github/downloads/superbalist/pubsub.py/total.svg?style=flat-square)](https://github.com/Superbalist/pubsub.py)
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg?style=flat-square)](https://github.com/Superbalist/pubsub.py)
 
 ## Adapters
