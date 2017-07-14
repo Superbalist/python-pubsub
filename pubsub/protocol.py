@@ -13,7 +13,7 @@ class Protocol(object):
         self.filter = filter
 
     def publish(self, topic, message):
-        self.validator.validate_message(message)
+        if self.validator: self.validator.validate_message(message)
         serialized = self.serializer.encode(message=message)
         self.adapter.publish(topic, serialized)
 
