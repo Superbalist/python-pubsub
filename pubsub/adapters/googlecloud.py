@@ -18,7 +18,6 @@ class GooglePubsub(BaseAdapter):
         self.project_id = project_id
 
     def publish(self, topic_name, message):
-        # (string, bytes) -> None
         topic_path = self.publisher.topic_path(self.project_id, topic_name)
         exists = True
         try:
@@ -32,7 +31,6 @@ class GooglePubsub(BaseAdapter):
         self.publisher.publish(topic_path, message)
 
     def subscribe(self, topic_name):
-        # (string) -> Iterable[bytes]
         topic_path = self.subscriber.topic_path(self.project_id, '{}.{}'.format(self.client_identifier, topic_name))
 
         exists = True
@@ -53,7 +51,6 @@ class GooglePubsub(BaseAdapter):
                 subscription.acknowledge([ack_id])
 
     def get_subscription(self, topic_name):
-        # (string) -> google.cloud.proto.pubsub.v1.pubsub_pb2.Subscription
         if not self.client_identifier:
             raise IdentifierRequiredException("Use obj.set_client_identifier('name')")
 
@@ -72,7 +69,6 @@ class GooglePubsub(BaseAdapter):
             raise TopicNotFound("Can't subscribe to unknown topic: {}".format(topic_name))
 
     def delete_topic(self, topic_name):
-        # (string) -> None
         topic_path = self.publisher.topic_path(self.project_id, topic_name)
         try:
             self.publisher.delete_topic(topic_path)
@@ -82,7 +78,6 @@ class GooglePubsub(BaseAdapter):
             raise TopicNotFound("Can't delete unknown topic: {}".format(topic_path))
 
     def delete_subscription(self):
-        # (string) -> None
         subscription_path = self.subscriber.subscription_path(self.project_id, self.client_identifier)
         try:
             self.subscriber.delete(subscription_path)
