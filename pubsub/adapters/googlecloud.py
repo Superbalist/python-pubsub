@@ -33,7 +33,7 @@ class GooglePubsub(BaseAdapter):
 
     def subscribe(self, topic_name):
         # (string) -> Iterable[bytes]
-        topic_path = self.subscriber.topic_path(self.project_id, topic_name)
+        topic_path = self.subscriber.topic_path(self.project_id, '{}.{}'.format(self.client_identifier, topic_name))
 
         exists = True
         try:
@@ -69,7 +69,7 @@ class GooglePubsub(BaseAdapter):
         except GaxError as exc:
             if exc.cause._state.code != StatusCode.NOT_FOUND:
                 raise
-            raise TopicNotFound("Can't subscribe to unknown topic: {}".format(topic_path))
+            raise TopicNotFound("Can't subscribe to unknown topic: {}".format(topic_name))
 
     def delete_topic(self, topic_name):
         # (string) -> None
