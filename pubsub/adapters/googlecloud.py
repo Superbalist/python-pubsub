@@ -1,4 +1,6 @@
-from google.cloud import pubsub
+import time
+
+from google.cloud import pubsub_v1
 from google.gax.errors import GaxError
 from grpc import StatusCode
 
@@ -12,8 +14,8 @@ class GooglePubsub(BaseAdapter):
     """
 
     def __init__(self, project_id, client_identifier='default'):
-        self.publisher = pubsub.PublisherClient()
-        self.subscriber = pubsub.SubscriberClient()
+        self.publisher = pubsub_v1.PublisherClient()
+        self.subscriber = pubsub_v1.SubscriberClient()
         self.client_identifier = client_identifier
         self.project_id = project_id
 
@@ -30,39 +32,41 @@ class GooglePubsub(BaseAdapter):
             self.publisher.create_topic(topic_path)
         self.publisher.publish(topic_path, message)
 
-    def subscribe(self, topic_name):
-        topic_path = self.subscriber.topic_path(self.project_id, '{}.{}'.format(self.client_identifier, topic_name))
+    def subscribe(self, topic_name, callback=None):
+        # This makes sure the subscription exists
+        self.get_subscription(topic_name)
 
-        exists = True
-        try:
-            self.subscriber.get_topic(topic_path)
-        except GaxError as exc:
-            if exc.cause._state.code != StatusCode.NOT_FOUND:
-                raise
-            exists = False
-        if not exists:
-            raise TopicNotFound("Can't subscribe to unknown topic: {}".format(topic_name))
+        subscription_path = self.subscriber.subscription_path(self.project_id, '{}.{}'.format(self.client_identifier, topic_name))
 
-        subscription = self.get_subscription(topic_name)
+        if callback is None:
+            def callback(message):
+                print('Received message: {}'.format(message))
+                message.ack()
 
+        # Limit the subscriber to only have ten outstanding messages at a time.
+        flow_control = pubsub_v1.types.FlowControl(max_messages=10)
+        self.subscriber.subscribe(
+            subscription_path, callback=callback, flow_control=flow_control)
+
+        # The subscriber is non-blocking, so we must keep the main thread from
+        # exiting to allow it to process messages in the background.
         while True:
-            for ack_id, message in subscription.pull():
-                yield message
-                subscription.acknowledge([ack_id])
+            time.sleep(60)
 
     def get_subscription(self, topic_name):
         if not self.client_identifier:
             raise IdentifierRequiredException("Use obj.set_client_identifier('name')")
 
-        subscription_path = self.subscriber.subscription_path(self.project_id, self.client_identifier)
+        subscription_path = self.subscriber.subscription_path(self.project_id, '{}.{}'.format(self.client_identifier, topic_name))
         try:
             return self.subscriber.get_subscription(subscription_path)
         except GaxError as exc:
             if exc.cause._state.code != StatusCode.NOT_FOUND:
                 raise
 
+        topic_path = self.subscriber.topic_path(self.project_id, topic_name)
         try:
-            return self.subscriber.create_subscription(subscription_path)
+            return self.subscriber.create_subscription(subscription_path, topic_path)
         except GaxError as exc:
             if exc.cause._state.code != StatusCode.NOT_FOUND:
                 raise

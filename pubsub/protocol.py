@@ -17,7 +17,14 @@ class Protocol:
         serialized = self.serializer.encode(message=message)
         self.adapter.publish(topic, serialized)
 
-    def subscribe(self, topic):
-        for message in self.adapter.subscribe(topic):
+    def subscribe(self, topic, callback=None):
+        if callback is None:
+            def callback(message):
+                print('Received message: {}'.format(message))
+                message.ack()
+
+        def deserializer_callback(message):
             serialized = self.serializer.decode(message)
-            yield serialized
+            callback(serialized)
+
+        self.adapter.subscribe(topic, callback=deserializer_callback)
