@@ -8,7 +8,7 @@ setup(
     description='Python PubSub Adapter for gcloud',
     url='https://github.com/Superbalist/python-pubsub',
     install_requires=[
-        'google-cloud-pubsub',
+        'google.cloud.pubsub<0.28.0',
         'jsonschema',
     ],
     packages=find_packages(),
