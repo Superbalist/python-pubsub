@@ -81,10 +81,10 @@ class GooglePubsub(BaseAdapter):
                 raise
             raise TopicNotFound("Can't delete unknown topic: {}".format(topic_path))
 
-    def delete_subscription(self):
-        subscription_path = self.subscriber.subscription_path(self.project_id, self.client_identifier)
+    def delete_subscription(self, topic_name):
+        subscription_path = self.subscriber.subscription_path(self.project_id, '{}.{}'.format(self.client_identifier, topic_name))
         try:
-            self.subscriber.delete(subscription_path)
+            self.subscriber.delete_subscription(subscription_path)
         except GaxError as exc:
             if exc.cause._state.code != StatusCode.NOT_FOUND:
                 raise
