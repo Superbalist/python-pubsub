@@ -17,14 +17,20 @@ class Protocol:
         serialized = self.serializer.encode(message=message)
         self.adapter.publish(topic, serialized)
 
-    def subscribe(self, topic, callback=None):
+    def subscribe(self, topic, callback=None, exception_handler=lambda x, y: None, always_raise=True):
+        # It is probably saner to just require a callback
         if callback is None:
             def callback(message):
                 print('Received message: {}'.format(message))
                 message.ack()
 
         def deserializer_callback(message):
-            serialized = self.serializer.decode(message)
-            callback(serialized)
+            try:
+                serialized = self.serializer.decode(message)
+                callback(serialized)
+            except Exception as exc:
+                exception_handler(message, exc)
+                if always_raise:
+                    raise exc
 
         self.adapter.subscribe(topic, callback=deserializer_callback)
