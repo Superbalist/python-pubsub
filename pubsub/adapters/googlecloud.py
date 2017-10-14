@@ -1,3 +1,4 @@
+import logging
 import time
 
 from google.cloud import pubsub_v1
@@ -6,6 +7,8 @@ from grpc import StatusCode
 
 from pubsub.adapters.base import BaseAdapter
 from pubsub.adapters.exceptions import IdentifierRequiredException, TopicNotFound, SubscriptionNotFound
+
+log = logging.getLogger('pubsub')
 
 
 class GooglePubsub(BaseAdapter):
@@ -45,6 +48,7 @@ class GooglePubsub(BaseAdapter):
 
         # Limit the subscriber to only have ten outstanding messages at a time.
         flow_control = pubsub_v1.types.FlowControl(max_messages=10)
+        log.info('Starting to listen on: %s', subscription_path)
         self.subscriber.subscribe(
             subscription_path, callback=callback, flow_control=flow_control)
 
