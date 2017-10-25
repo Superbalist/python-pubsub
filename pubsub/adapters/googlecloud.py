@@ -1,5 +1,4 @@
 import logging
-import time
 
 from google.cloud import pubsub_v1
 from google.gax.errors import GaxError
@@ -35,27 +34,17 @@ class GooglePubsub(BaseAdapter):
             self.publisher.create_topic(topic_path)
         self.publisher.publish(topic_path, message)
 
-    def subscribe(self, topic_name, callback=None):
+    def subscribe(self, topic_name, callback):
         # This makes sure the subscription exists
         self.get_subscription(topic_name)
 
         subscription_path = self.subscriber.subscription_path(self.project_id, '{}.{}'.format(self.client_identifier, topic_name))
-
-        if callback is None:
-            def callback(message):
-                print('Received message: {}'.format(message))
-                message.ack()
 
         # Limit the subscriber to only have ten outstanding messages at a time.
         flow_control = pubsub_v1.types.FlowControl(max_messages=10)
         log.info('Starting to listen on: %s', subscription_path)
         self.subscriber.subscribe(
             subscription_path, callback=callback, flow_control=flow_control)
-
-        # The subscriber is non-blocking, so we must keep the main thread from
-        # exiting to allow it to process messages in the background.
-        while True:
-            time.sleep(60)
 
     def get_subscription(self, topic_name):
         if not self.client_identifier:

@@ -1,3 +1,8 @@
+import logging
+import threading
+import time
+from datetime import datetime
+
 from pubsub.serializers.serializer import JSONSerializer
 
 
@@ -24,7 +29,23 @@ class Protocol:
                 print('Received message: {}'.format(message))
                 message.ack()
 
+        lock = threading.Lock()
+        global last_message
+        last_message = None
+        time_since_last = 0
+
         def deserializer_callback(message):
+            with lock:
+                global last_message
+                if last_message is None:
+                    last_message = datetime.utcnow()
+                else:
+                    now = datetime.utcnow()
+                    time_since_last = now - last_message
+                    if time_since_last.seconds:
+                        logging.info('{} seconds since last message'.format(time_since_last))
+                    last_message = now
+
             try:
                 serialized = self.serializer.decode(message)
                 callback(serialized)
@@ -34,3 +55,11 @@ class Protocol:
                     raise exc
 
         self.adapter.subscribe(topic, callback=deserializer_callback)
+
+        # The subscriber is non-blocking, so we must keep the main thread from
+        # exiting to allow it to process messages in the background.
+        while True:
+            time.sleep(60)
+            if time_since_last > 500:
+                logging.critical('It\'s been a while since we saw a message. Subscribing thread might be dead.')
+                break
