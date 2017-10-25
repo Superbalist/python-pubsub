@@ -32,6 +32,7 @@ class Protocol:
         lock = threading.Lock()
         global last_message
         last_message = None
+        global time_since_last
         time_since_last = 0
 
         def deserializer_callback(message):
@@ -41,6 +42,7 @@ class Protocol:
                     last_message = datetime.utcnow()
                 else:
                     now = datetime.utcnow()
+                    global time_since_last
                     time_since_last = now - last_message
                     if time_since_last.seconds:
                         logging.info('{} seconds since last message'.format(time_since_last))
@@ -60,6 +62,6 @@ class Protocol:
         # exiting to allow it to process messages in the background.
         while True:
             time.sleep(60)
-            if time_since_last > 500:
+            if time_since_last > 300:
                 logging.critical("It's been a while since we saw a message. Subscribing thread might be dead.")
                 break
