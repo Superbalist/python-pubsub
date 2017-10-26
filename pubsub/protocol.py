@@ -60,6 +60,6 @@ class Protocol:
         # exiting to allow it to process messages in the background.
         while True:
             time.sleep(60)
-            if time_since_last > 300:
+            if time_since_last.seconds > 300:
                 logging.critical("It's been a while since we saw a message. Subscribing thread might be dead.")
                 break
