@@ -25,8 +25,8 @@ class Protocol:
     def subscribe(self, topic, callback=None, exception_handler=lambda x, y: None, always_raise=True):
         # It is probably saner to just require a callback
         if callback is None:
-            def callback(message):
-                print('Received message: {}'.format(message))
+            def callback(message, data):
+                print('Received message: {}'.format(data))
                 message.ack()
 
         lock = threading.Lock()
@@ -49,8 +49,8 @@ class Protocol:
                     last_message = now
 
             try:
-                serialized = self.serializer.decode(message)
-                callback(serialized)
+                deserialized = self.serializer.decode(message)
+                callback(message, deserialized)
             except Exception as exc:
                 exception_handler(message, exc)
                 if always_raise:
