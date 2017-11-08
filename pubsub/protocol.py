@@ -1,10 +1,13 @@
 import logging
 import threading
 import time
+from datetime import timedelta
 from datetime import datetime
 
 from pubsub.serializers.serializer import JSONSerializer
 
+HEALTHCHECK_PERIOD = 60
+HEALTHCHECK_TIMEOUT = 300
 
 class Protocol:
     """
@@ -22,29 +25,16 @@ class Protocol:
         serialized = self.serializer.encode(message=message)
         self.adapter.publish(topic, serialized)
 
-    def subscribe(self, topic, callback=None, exception_handler=lambda x, y: None, always_raise=True):
-        # It is probably saner to just require a callback
-        if callback is None:
-            def callback(message, data):
-                print('Received message: {}'.format(data))
-                message.ack()
-
+    def subscribe(self, topic, callback, exception_handler=lambda x, y: None, always_raise=True, healthcheck_period=HEALTHCHECK_PERIOD, healthcheck_timeout=HEALTHCHECK_TIMEOUT
+                  ):
         lock = threading.Lock()
         global last_message
-        last_message = None
-        global time_since_last
-        time_since_last = 0
+        last_message = datetime.utcnow()
 
         def deserializer_callback(message):
             with lock:
                 global last_message
-                if last_message is None:
-                    last_message = datetime.utcnow()
-                else:
-                    now = datetime.utcnow()
-                    global time_since_last
-                    time_since_last = now - last_message
-                    last_message = now
+                last_message = datetime.utcnow()
 
             try:
                 deserialized = self.serializer.decode(message)
@@ -53,13 +43,15 @@ class Protocol:
                 exception_handler(message, exc)
                 if always_raise:
                     raise exc
+            self.adapter.ack(message)
 
         self.adapter.subscribe(topic, callback=deserializer_callback)
 
         # The subscriber is non-blocking, so we must keep the main thread from
         # exiting to allow it to process messages in the background.
         while True:
-            time.sleep(60)
-            if time_since_last.seconds > 300:
+            time.sleep(healthcheck_period)
+            time_since_last = (datetime.utcnow() - last_message).total_seconds()
+            if time_since_last > healthcheck_timeout:
                 logging.critical("It's been a while since we saw a message. Subscribing thread might be dead.")
                 break

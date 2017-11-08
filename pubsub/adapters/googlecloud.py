@@ -21,6 +21,9 @@ class GooglePubsub(BaseAdapter):
         self.client_identifier = client_identifier
         self.project_id = project_id
 
+    def ack(self, message):
+        message.ack()
+
     def publish(self, topic_name, message):
         topic_path = self.publisher.topic_path(self.project_id, topic_name)
         exists = True
