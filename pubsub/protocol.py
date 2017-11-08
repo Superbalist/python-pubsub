@@ -1,7 +1,6 @@
 import logging
 import threading
 import time
-from datetime import timedelta
 from datetime import datetime
 
 from pubsub.serializers.serializer import JSONSerializer
@@ -25,8 +24,9 @@ class Protocol:
         serialized = self.serializer.encode(message=message)
         self.adapter.publish(topic, serialized)
 
-    def subscribe(self, topic, callback, exception_handler=lambda x, y: None, always_raise=True, healthcheck_period=HEALTHCHECK_PERIOD, healthcheck_timeout=HEALTHCHECK_TIMEOUT
-                  ):
+    def subscribe(
+            self, topic, callback, exception_handler=lambda x, y: None, always_raise=True,
+            healthcheck_period=HEALTHCHECK_PERIOD, healthcheck_timeout=HEALTHCHECK_TIMEOUT):
         lock = threading.Lock()
         global last_message
         last_message = datetime.utcnow()

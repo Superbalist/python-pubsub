@@ -5,7 +5,6 @@ from unittest import TestCase
 from jsonschema import ValidationError
 
 from pubsub.adapters.base import BaseAdapter
-from pubsub import protocol
 from pubsub.protocol import Protocol
 from pubsub.serializers.serializer import JSONSerializer
 from pubsub.validators.validator import SchemaValidator
@@ -24,7 +23,7 @@ class MockGoogleAdapter(BaseAdapter):
         self._messages[channel].appendleft(message)
 
     def subscribe(self, channel, callback):
-        class MockMessage:
+        class MockMessage(object):
             def __init__(self, message):
                 self.data = message
         r = MockMessage(self._messages[channel].pop())
@@ -67,7 +66,7 @@ class ProtocolTests(TestCase):
         def callback(message, data):
             assert data == self.valid_message
 
-        sub = protocol.subscribe('python_test', callback=callback, healthcheck_period=1, healthcheck_timeout=1)
+        protocol.subscribe('python_test', callback=callback, healthcheck_period=1, healthcheck_timeout=1)
 
     def test_invalid_message(self):
         protocol = Protocol(
