@@ -67,7 +67,7 @@ class ProtocolTests(TestCase):
         def callback(message, data):
             assert data == self.valid_message
 
-        sub = protocol.subscribe('python_test', callback=callback, healthcheck_period=5, healthcheck_timeout=10)
+        sub = protocol.subscribe('python_test', callback=callback, healthcheck_period=1, healthcheck_timeout=1)
 
     def test_invalid_message(self):
         protocol = Protocol(
