@@ -8,7 +8,8 @@ from pubsub.serializers.serializer import JSONSerializer
 HEALTHCHECK_PERIOD = 60
 HEALTHCHECK_TIMEOUT = 300
 
-class Protocol:
+
+class Protocol(object):
     """
     Protocol used to instantiate publisher/subscriber adapters with optional parameters(serializer, validator, filter)
     """
