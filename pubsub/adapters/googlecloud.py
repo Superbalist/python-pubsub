@@ -26,14 +26,11 @@ class GooglePubsub(BaseAdapter):
 
     def publish(self, topic_name, message):
         topic_path = self.publisher.topic_path(self.project_id, topic_name)
-        exists = True
         try:
             self.publisher.get_topic(topic_path)
         except GaxError as exc:
             if exc.cause._state.code != StatusCode.NOT_FOUND:
                 raise
-            exists = False
-        if not exists:
             self.publisher.create_topic(topic_path)
         self.publisher.publish(topic_path, message)
 
