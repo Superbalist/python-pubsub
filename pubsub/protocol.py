@@ -1,9 +1,5 @@
-import logging
-import threading
-import time
-from datetime import datetime
-
 from pubsub.serializers.serializer import JSONSerializer
+
 
 class Protocol(object):
     """
