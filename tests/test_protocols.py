@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
+import threading
 from collections import defaultdict, deque
+from time import sleep
 from unittest import TestCase
 
+from google.cloud.pubsub_v1 import futures
 from jsonschema import ValidationError
 
 from pubsub.adapters.base import BaseAdapter
@@ -26,8 +29,24 @@ class MockGoogleAdapter(BaseAdapter):
         class MockMessage(object):
             def __init__(self, message):
                 self.data = message
-        r = MockMessage(self._messages[channel].pop())
-        return callback(r)
+
+        future = futures.Future()
+
+        def create_message():
+            sleep(0.1)
+            r = MockMessage(self._messages[channel].pop())
+            try:
+                return callback(r)
+            except Exception as exc:
+                future.set_exception(exc)
+
+        thread = threading.Thread(target=create_message)
+        thread.start()
+        return future
+
+
+class DoneException(Exception):
+    pass
 
 
 class ProtocolTests(TestCase):
@@ -65,8 +84,11 @@ class ProtocolTests(TestCase):
 
         def callback(message, data):
             assert data == self.valid_message
+            raise DoneException()
 
-        protocol.subscribe('python_test', callback=callback, healthcheck_period=1, healthcheck_timeout=1)
+        future = protocol.subscribe('python_test', callback=callback)
+        with self.assertRaises(DoneException):
+            future.result(timeout=1)
 
     def test_invalid_message(self):
         protocol = Protocol(
