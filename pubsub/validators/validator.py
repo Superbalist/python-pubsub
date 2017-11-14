@@ -24,7 +24,7 @@ class SchemaValidator():
             raise ValidationError('Incorrect schema uri')
 
 
-class TestValidator:
+class EmptyValidator():
     """
     Validates that message is not None
     """
