@@ -3,11 +3,11 @@ class BaseAdapter(object):
     PubSub adapter base class
     """
 
-    def __init__(self):
-        pass
-
     def publish(self, channel, message):
         raise NotImplementedError('Not implemented')
 
-    def subscribe(self, channel):
+    def subscribe(self, channel, callback):
         raise NotImplementedError('Not implemented')
+
+    def ack(self, message):
+        pass

@@ -35,11 +35,29 @@ from pubsub.protocol import Protocol
 from pubsub.adapters.googlecloud import GooglePubsub
 
 
-protocol = Protocol(adapter=GooglePubsub(client_identifier=sub_id))
+protocol = Protocol(adapter=GooglePubsub("GOOGLE_PROJECT_IDENTIFIER", client_identifier="CLIENT_IDENTIFIER"))
 
 # Subscribe to a topic
-for message in protocol.subscribe('topic_name'):
-    # Do something with the message here!
+
+# Create a callback handler method
+def callback(message):
+    print(message)
+
+# If you want to capture exceptions, create optional exception handler
+sentry_client = Client()
+def exception_handler(message, exc):
+    sentry_client.captureException()
+
+future = protocol.subscribe(topic='topic_name', callback=callback, exception_handler=exception_handler, always_raise=False)
+
+# If you use `always_raise=True` exceptions will be handed to `exception_handler` and then cause messages to remain unack'd
+# If you use `always_raise=False` exceptions will be handed to `exception_handler` and you can choose to re-raise or ignore and ack messages
+
+try:
+    future.result()
+except Exception, e:
+    print(e)
+
 
 # Publish a message to topic
 protocol.publish('topic_name', 'Message')

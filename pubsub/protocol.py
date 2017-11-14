@@ -1,7 +1,7 @@
 from pubsub.serializers.serializer import JSONSerializer
 
 
-class Protocol:
+class Protocol(object):
     """
     Protocol used to instantiate publisher/subscriber adapters with optional parameters(serializer, validator, filter)
     """
@@ -17,7 +17,17 @@ class Protocol:
         serialized = self.serializer.encode(message=message)
         self.adapter.publish(topic, serialized)
 
-    def subscribe(self, topic):
-        for message in self.adapter.subscribe(topic):
-            serialized = self.serializer.decode(message)
-            yield serialized
+    def subscribe(
+            self, topic, callback, exception_handler=lambda x, y: None, always_raise=True):
+
+        def deserializer_callback(message):
+            try:
+                deserialized = self.serializer.decode(message)
+                callback(message, deserialized)
+            except Exception as exc:
+                exception_handler(message, exc)
+                if always_raise:
+                    raise exc
+            self.adapter.ack(message)
+
+        return self.adapter.subscribe(topic, callback=deserializer_callback)

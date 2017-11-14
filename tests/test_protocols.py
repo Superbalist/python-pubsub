@@ -1,15 +1,19 @@
 # -*- coding: utf-8 -*-
+import threading
 from collections import defaultdict, deque
+from time import sleep
 from unittest import TestCase
 
+from google.cloud.pubsub_v1 import futures
 from jsonschema import ValidationError
 
+from pubsub.adapters.base import BaseAdapter
 from pubsub.protocol import Protocol
 from pubsub.serializers.serializer import JSONSerializer
 from pubsub.validators.validator import SchemaValidator
 
 
-class MockGoogleAdapter(object):
+class MockGoogleAdapter(BaseAdapter):
     """
     PubSub adapter base class
     """
@@ -21,12 +25,28 @@ class MockGoogleAdapter(object):
     def publish(self, channel, message):
         self._messages[channel].appendleft(message)
 
-    def subscribe(self, channel):
-        class MockMessage:
+    def subscribe(self, channel, callback):
+        class MockMessage(object):
             def __init__(self, message):
                 self.data = message
-        r = MockMessage(self._messages[channel].pop())
-        yield r
+
+        future = futures.Future()
+
+        def create_message():
+            sleep(0.1)
+            r = MockMessage(self._messages[channel].pop())
+            try:
+                return callback(r)
+            except Exception as exc:
+                future.set_exception(exc)
+
+        thread = threading.Thread(target=create_message)
+        thread.start()
+        return future
+
+
+class DoneException(Exception):
+    pass
 
 
 class ProtocolTests(TestCase):
@@ -55,19 +75,20 @@ class ProtocolTests(TestCase):
         }
         cls.invalid_message = {'blah': 'blah'}
 
-    @classmethod
-    def tearDownClass(cls):
-        pass
-
     def test_valid_message(self):
         protocol = Protocol(
             adapter=MockGoogleAdapter('test-client'),
             serializer=JSONSerializer(),
             validator=SchemaValidator())
         protocol.publish('python_test', self.valid_message)
-        sub = protocol.subscribe('python_test')
-        for message in sub:
-            assert message == self.valid_message
+
+        def callback(message, data):
+            assert data == self.valid_message
+            raise DoneException()
+
+        future = protocol.subscribe('python_test', callback=callback)
+        with self.assertRaises(DoneException):
+            future.result(timeout=1)
 
     def test_invalid_message(self):
         protocol = Protocol(
