@@ -43,8 +43,9 @@ class GooglePubsub(BaseAdapter):
         # Limit the subscriber to only have ten outstanding messages at a time.
         flow_control = pubsub_v1.types.FlowControl(max_messages=10)
         log.info('Starting to listen on: %s', subscription_path)
-        return self.subscriber.subscribe(
-            subscription_path, callback=callback, flow_control=flow_control)
+        policy = self.subscriber.subscribe(
+            subscription_path, flow_control=flow_control)
+        return policy.open(callback=callback)
 
     def get_subscription(self, topic_name):
         if not self.client_identifier:
