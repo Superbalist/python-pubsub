@@ -55,7 +55,7 @@ future = protocol.subscribe(topic='topic_name', callback=callback, exception_han
 
 try:
     future.result()
-except Exception, e:
+except Exception as e:
     print(e)
 
 
