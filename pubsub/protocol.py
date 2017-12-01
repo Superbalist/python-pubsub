@@ -32,3 +32,9 @@ class Protocol(object):
             self.adapter.ack(message)
 
         return self.adapter.subscribe(topic, callback=deserializer_callback)
+
+    def get_topics(self):
+        return self.adapter.get_topics()
+
+    def delete_topic(self, topic):
+        self.adapter.delete_topic(topic)
