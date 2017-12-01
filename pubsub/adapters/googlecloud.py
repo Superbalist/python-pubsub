@@ -80,3 +80,7 @@ class GooglePubsub(BaseAdapter):
             if exc.cause._state.code != StatusCode.NOT_FOUND:
                 raise
             raise SubscriptionNotFound("Can't delete unknown subscription: {}".format(subscription_path))
+
+    def get_topics(self):
+        project_path = self.publisher.project_path(self.project_id)
+        return self.publisher.list_topics(project_path)
