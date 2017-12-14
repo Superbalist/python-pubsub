@@ -36,30 +36,42 @@ from pubsub.adapters.googlecloud import GooglePubsub
 
 
 protocol = Protocol(adapter=GooglePubsub("GOOGLE_PROJECT_IDENTIFIER", client_identifier="CLIENT_IDENTIFIER"))
+```
 
-# Subscribe to a topic
+### Subscribe to a topic
 
+```
 # Create a callback handler method
-def callback(message):
-    print(message)
+def callback(message, data):
+    print(data)
 
-# If you want to capture exceptions, create optional exception handler
-sentry_client = Client()
-def exception_handler(message, exc):
-    sentry_client.captureException()
-
-future = protocol.subscribe(topic='topic_name', callback=callback, exception_handler=exception_handler, always_raise=False)
-
-# If you use `always_raise=True` exceptions will be handed to `exception_handler` and then cause messages to remain unack'd
-# If you use `always_raise=False` exceptions will be handed to `exception_handler` and you can choose to re-raise or ignore and ack messages
+future = protocol.subscribe(topic='topic_name', callback=callback)
 
 try:
     future.result()
 except Exception as e:
     print(e)
+```
 
+And set an optional `exception_handler`:
 
-# Publish a message to topic
+```
+# If you want to capture exceptions, you can create an optional exception handler, like one that uses Sentry
+
+from raven import Client
+sentry_client = Client()
+def exception_handler(message, exc):
+    sentry_client.captureException()
+
+# If you use `always_raise=True` exceptions will be handed to `exception_handler` and then cause messages to remain unack'd
+# If you use `always_raise=False` exceptions will be handed to `exception_handler` and you can choose to re-raise or ignore and ack messages
+
+future = protocol.subscribe(topic='topic_name', callback=callback, exception_handler=exception_handler, always_raise=False)
+```
+
+### Publish a message to topic
+
+```
 protocol.publish('topic_name', 'Message')
 ```
 
