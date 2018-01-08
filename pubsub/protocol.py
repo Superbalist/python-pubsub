@@ -24,7 +24,7 @@ class Protocol(object):
                     self.publish(
                         self.validator.errors_topic,
                         dict(
-                            schema=self.validator.errors.schema,
+                            schema=self.validator.errors_schema,
                             event=message,
                             errors=[err.message for err in exc.errors]
                         )
