@@ -7,10 +7,11 @@ class Protocol(object):
     Protocol used to instantiate publisher/subscriber adapters with optional parameters(serializer, validator, filter)
     """
 
-    def __init__(self, adapter, serializer=None, validator=None, filter=None):
+    def __init__(self, adapter, serializer=None, validator=None, validation_error_handler=None, filter=None):
         self.adapter = adapter
         self.serializer = serializer or JSONSerializer()
         self.validator = validator
+        self.validation_error_handler = validation_error_handler
         self.filter = filter
 
     def publish(self, topic, message):
@@ -19,16 +20,10 @@ class Protocol(object):
                 self.validator.validate_message(message)
             except ValidationError as exc:
                 if topic == 'validation_error':
-                    raise Exception('Validation error event is invalid: {}'.format(message))
-                if self.validator.publish_validation_errors:
-                    self.publish(
-                        self.validator.errors_topic,
-                        dict(
-                            schema=self.validator.errors_schema,
-                            event=message,
-                            errors=[err.message for err in exc.errors]
-                        )
-                    )
+                    raise Exception('Validation error event is invalid: {}. Errors: {}'.format(message, ','.join(err.message for err in exc.errors)))
+                if self.validation_error_handler:
+                    self.validation_error_handler(event=message, exception=exc, protocol=self)
+                raise
         serialized = self.serializer.encode(message=message)
         self.adapter.publish(topic, serialized)
 
