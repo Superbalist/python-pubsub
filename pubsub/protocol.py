@@ -1,6 +1,11 @@
 from pubsub.serializers.serializer import JSONSerializer
 from pubsub.validators.validator import ValidationError
 
+class ValidationErrorError(Exception):
+    def __init__(self, errors=None, *args, **kwargs):
+        self.errors = errors
+        super(ValidationErrorError, self).__init__(*args, **kwargs)
+
 
 class Protocol(object):
     """
@@ -20,7 +25,7 @@ class Protocol(object):
                 self.validator.validate_message(message)
             except ValidationError as exc:
                 if topic == 'validation_error':
-                    raise Exception('Validation error event is invalid: {}. Errors: {}'.format(message, ','.join(err.message for err in exc.errors)))
+                    raise ValidationErrorError('Validation error event is invalid: {}. Errors: {}'.format(message, ','.join(err.message for err in exc.errors)))
                 if self.validation_error_handler:
                     self.validation_error_handler(event=message, exception=exc, protocol=self)
                 raise

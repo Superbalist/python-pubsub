@@ -11,7 +11,7 @@ from google.cloud.pubsub_v1 import futures
 from jsonschema import ValidationError as SchemaValidationError
 
 from pubsub.adapters.base import BaseAdapter
-from pubsub.protocol import Protocol
+from pubsub.protocol import Protocol, ValidationErrorError
 from pubsub.serializers.serializer import JSONSerializer
 from pubsub.validators.validator import SchemaValidator, ValidationError
 
@@ -171,3 +171,28 @@ class TestValidationErrorPublisher(TestCase):
         future = self.protocol.subscribe('validation_error', callback=callback)
         with self.assertRaises(DoneException):
             future.result(timeout=1)
+
+    def test_invalid_validation_error_message(self):
+        topic = 'validation_error'
+        schema = 'http://schema.superbalist.com/events/validation_error/validation_error/1.0.json'
+
+        def validation_error_handler(event, exception, protocol):
+            message = {
+                'meta': {
+                    'date': datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
+                    'hostname': gethostname(),
+                    'service': 'example-app',
+                    'uuid': str(uuid4())
+                },
+                'schema': schema
+            }
+            message.update(errors=[err.message for err in exception.errors])
+            protocol.publish(topic, message)
+
+        self.protocol.validation_error_handler = validation_error_handler
+
+        def callback(message, data):
+            raise DoneException
+
+        with self.assertRaises(ValidationErrorError):
+            self.protocol.publish('python_test', self.invalid_message)
