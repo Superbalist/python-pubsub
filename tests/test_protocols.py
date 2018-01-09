@@ -158,7 +158,7 @@ class TestValidationErrorPublisher(TestCase):
                 'schema': schema
             }
             message.update(event=event, errors=[err.message for err in exception.errors])
-            protocol.publish(topic, message)
+            protocol.publish(topic, message, validation_error_message=True)
 
         self.protocol.validation_error_handler = validation_error_handler
 
@@ -184,15 +184,12 @@ class TestValidationErrorPublisher(TestCase):
                     'service': 'example-app',
                     'uuid': str(uuid4())
                 },
-                'schema': schema
+                'schema': schema,
+                'errors': [err.message for err in exception.errors]
             }
-            message.update(errors=[err.message for err in exception.errors])
-            protocol.publish(topic, message)
+            protocol.publish(topic, message, validation_error_message=True)
 
         self.protocol.validation_error_handler = validation_error_handler
-
-        def callback(message, data):
-            raise DoneException
 
         with self.assertRaises(ValidationErrorError):
             self.protocol.publish('python_test', self.invalid_message)

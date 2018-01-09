@@ -19,12 +19,12 @@ class Protocol(object):
         self.validation_error_handler = validation_error_handler
         self.filter = filter
 
-    def publish(self, topic, message):
+    def publish(self, topic, message, validation_error_message=False):
         if self.validator:
             try:
                 self.validator.validate_message(message)
             except ValidationError as exc:
-                if topic == 'validation_error':
+                if validation_error_message:
                     raise ValidationErrorError('Validation error event is invalid: {}. Errors: {}'.format(message, ','.join(err.message for err in exc.errors)))
                 if self.validation_error_handler:
                     self.validation_error_handler(event=message, exception=exc, protocol=self)
