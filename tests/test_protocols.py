@@ -118,9 +118,6 @@ class ProtocolTests(TestCase):
 class TestValidationErrorPublisher(TestCase):
     @classmethod
     def setUp(cls):
-        cls.schema = {
-            'required': ['foo']
-        }
         cls.valid_message = {
             'schema': 'http://json-schema.org/example/card.json',
             'familyName': 'foo',
@@ -134,7 +131,6 @@ class TestValidationErrorPublisher(TestCase):
             adapter=MockGoogleAdapter('test-client'),
             serializer=JSONSerializer(),
             validator=SchemaValidator())
-        cls.protocol.validator.schema = cls.schema
 
     def tearDown(self):
         self.protocol.adapter.clear_messages()
