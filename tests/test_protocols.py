@@ -119,12 +119,12 @@ class TestValidationErrorPublisher(TestCase):
     @classmethod
     def setUp(cls):
         cls.valid_message = {
-            'schema': 'http://json-schema.org/example/card.json',
+            'schema': 'https://raw.githubusercontent.com/Superbalist/python-pubsub/gh-pages/examples/schema/card.json',
             'familyName': 'foo',
             'givenName': 'bar',
         }
         cls.invalid_message = {
-            'schema': 'http://json-schema.org/example/card.json',
+            'schema': 'https://raw.githubusercontent.com/Superbalist/python-pubsub/gh-pages/examples/schema/card.json',
             'givenName': 'baz',
         }
         cls.protocol = Protocol(
@@ -141,7 +141,7 @@ class TestValidationErrorPublisher(TestCase):
 
     def test_invalid_message(self):
         topic = 'validation_error'
-        schema = 'http://schema.superbalist.com/events/validation_error/validation_error/1.0.json'
+        schema = 'https://raw.githubusercontent.com/Superbalist/python-pubsub/gh-pages/examples/schema/validation-error.json'
 
         def validation_error_handler(event, exception, protocol):
             message = {
@@ -170,7 +170,7 @@ class TestValidationErrorPublisher(TestCase):
 
     def test_invalid_validation_error_message(self):
         topic = 'validation_error'
-        schema = 'http://schema.superbalist.com/events/validation_error/validation_error/1.0.json'
+        schema = 'https://raw.githubusercontent.com/Superbalist/python-pubsub/gh-pages/examples/schema/validation-error.json'
 
         def validation_error_handler(event, exception, protocol):
             message = {
