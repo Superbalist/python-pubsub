@@ -1,0 +1,26 @@
+{
+    "schema": "http://json-schema.org/draft-04/schema#",
+    "title": "validation_error/validation_error/1.0",
+    "type": "object",
+    "properties": {
+        "schema": {
+            "type": "string",
+            "format": "uri"
+        },
+        "meta": {
+            "$ref": "http://schema.superbalist.com/entities/meta/1.0.json"
+        },
+        "event": {
+            "type": "object"
+        },
+        "errors": {
+            "type": "array"
+        }
+    },
+    "required": [
+        "schema",
+        "meta",
+        "event",
+        "errors"
+    ]
+}
