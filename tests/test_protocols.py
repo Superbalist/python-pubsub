@@ -11,7 +11,7 @@ from google.cloud.pubsub_v1 import futures
 from jsonschema import ValidationError as SchemaValidationError
 
 from pubsub.adapters.base import BaseAdapter
-from pubsub.protocol import Protocol, ValidationErrorError
+from pubsub.protocol import Protocol
 from pubsub.serializers.serializer import JSONSerializer
 from pubsub.validators.validator import SchemaValidator, ValidationError
 
@@ -143,7 +143,7 @@ class TestValidationErrorPublisher(TestCase):
         topic = 'validation_error'
         schema = 'https://raw.githubusercontent.com/Superbalist/python-pubsub/gh-pages/examples/schema/validation-error.json'
 
-        def validation_error_handler(event, exception, protocol):
+        def validation_error_callback(event, exception, protocol):
             message = {
                 'meta': {
                     'date': datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
@@ -154,15 +154,13 @@ class TestValidationErrorPublisher(TestCase):
                 'schema': schema
             }
             message.update(event=event, errors=[err.message for err in exception.errors])
-            protocol.publish(topic, message, validation_error_message=True)
-
-        self.protocol.validation_error_handler = validation_error_handler
+            protocol.publish(topic, message)
 
         def callback(message, data):
             raise DoneException
 
         with self.assertRaises(ValidationError):
-            self.protocol.publish('python_test', self.invalid_message)
+            self.protocol.publish('python_test', self.invalid_message, validation_error_callback)
 
         future = self.protocol.subscribe('validation_error', callback=callback)
         with self.assertRaises(DoneException):
@@ -172,7 +170,7 @@ class TestValidationErrorPublisher(TestCase):
         topic = 'validation_error'
         schema = 'https://raw.githubusercontent.com/Superbalist/python-pubsub/gh-pages/examples/schema/validation-error.json'
 
-        def validation_error_handler(event, exception, protocol):
+        def validation_error_callback(event, exception, protocol):
             message = {
                 'meta': {
                     'date': datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
@@ -183,9 +181,7 @@ class TestValidationErrorPublisher(TestCase):
                 'schema': schema,
                 'errors': [err.message for err in exception.errors]
             }
-            protocol.publish(topic, message, validation_error_message=True)
+            protocol.publish(topic, message)
 
-        self.protocol.validation_error_handler = validation_error_handler
-
-        with self.assertRaises(ValidationErrorError):
-            self.protocol.publish('python_test', self.invalid_message)
+        with self.assertRaises(ValidationError):
+            self.protocol.publish('python_test', self.invalid_message, validation_error_callback)

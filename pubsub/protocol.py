@@ -1,33 +1,25 @@
 from pubsub.serializers.serializer import JSONSerializer
 from pubsub.validators.validator import ValidationError
 
-class ValidationErrorError(Exception):
-    def __init__(self, errors=None, *args, **kwargs):
-        self.errors = errors
-        super(ValidationErrorError, self).__init__(*args, **kwargs)
-
 
 class Protocol(object):
     """
     Protocol used to instantiate publisher/subscriber adapters with optional parameters(serializer, validator, filter)
     """
 
-    def __init__(self, adapter, serializer=None, validator=None, validation_error_handler=None, filter=None):
+    def __init__(self, adapter, serializer=None, validator=None, filter=None):
         self.adapter = adapter
         self.serializer = serializer or JSONSerializer()
         self.validator = validator
-        self.validation_error_handler = validation_error_handler
         self.filter = filter
 
-    def publish(self, topic, message, validation_error_message=False):
+    def publish(self, topic, message, validation_error_callback=None):
         if self.validator:
             try:
                 self.validator.validate_message(message)
             except ValidationError as exc:
-                if validation_error_message:
-                    raise ValidationErrorError('Validation error event is invalid: {}. Errors: {}'.format(message, ','.join(err.message for err in exc.errors)))
-                if self.validation_error_handler:
-                    self.validation_error_handler(event=message, exception=exc, protocol=self)
+                if validation_error_callback:
+                    validation_error_callback(event=message, exception=exc, protocol=self)
                 raise
         serialized = self.serializer.encode(message=message)
         self.adapter.publish(topic, serialized)
