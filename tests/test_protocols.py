@@ -11,6 +11,7 @@ from google.cloud.pubsub_v1 import futures
 from jsonschema import ValidationError as SchemaValidationError
 
 from pubsub.adapters.base import BaseAdapter
+from pubsub.adapters.exceptions import TopicNotFound
 from pubsub.protocol import Protocol
 from pubsub.serializers.serializer import JSONSerializer
 from pubsub.validators.validator import SchemaValidator, ValidationError
@@ -21,20 +22,29 @@ class MockGoogleAdapter(BaseAdapter):
     PubSub adapter base class
     """
 
-    def __init__(self, client_identifier):
+    def __init__(self, client_identifier, topics=None):
         self.client_id = client_identifier
-        self._messages = defaultdict(deque)
+        topics = topics or []
+        self._messages = {topic: deque() for topic in topics}
 
     def clear_messages(self):
         self._messages = defaultdict(deque)
 
-    def publish(self, channel, message):
+    def publish(self, channel, message, create_topic=True):
+        if create_topic and (channel not in self._messages):
+            self._messages[channel] = deque()
         self._messages[channel].appendleft(message)
 
     def subscribe(self, channel, callback, create_topic=False):
         class MockMessage(object):
             def __init__(self, message):
                 self.data = message
+
+        if channel not in self._messages:
+            if create_topic:
+                self._messages[channel] = deque()
+            else:
+                raise TopicNotFound("Topic {} doesn't exist".format(channel))
 
         future = futures.Future()
 
@@ -96,6 +106,34 @@ class ProtocolTests(TestCase):
         future = protocol.subscribe('python_test', callback=callback)
         with self.assertRaises(DoneException):
             future.result(timeout=1)
+
+    def test_missing_topic(self):
+        protocol = Protocol(
+            adapter=MockGoogleAdapter('test-client'),
+            serializer=JSONSerializer(),
+            validator=SchemaValidator())
+
+        def callback(message, data):
+            assert data == self.valid_message
+            raise DoneException()
+
+        with self.assertRaises(TopicNotFound):
+            future = protocol.subscribe('python_test', callback=callback)
+            future.result(timeout=1)
+
+    def test_create_missing_topic(self):
+        protocol = Protocol(
+            adapter=MockGoogleAdapter('test-client'),
+            serializer=JSONSerializer(),
+            validator=SchemaValidator())
+
+        def callback(message, data):
+            assert data == self.valid_message
+            raise DoneException()
+
+        with self.assertRaises(futures.exceptions.TimeoutError):
+            future = protocol.subscribe('python_test', callback=callback, create_topic=True)
+            future.result(timeout=0.01)
 
     def test_invalid_message(self):
         protocol = Protocol(
