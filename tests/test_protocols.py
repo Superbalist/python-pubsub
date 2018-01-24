@@ -31,7 +31,7 @@ class MockGoogleAdapter(BaseAdapter):
     def publish(self, channel, message):
         self._messages[channel].appendleft(message)
 
-    def subscribe(self, channel, callback):
+    def subscribe(self, channel, callback, create_topic=False):
         class MockMessage(object):
             def __init__(self, message):
                 self.data = message
