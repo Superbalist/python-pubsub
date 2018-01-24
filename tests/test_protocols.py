@@ -1,16 +1,19 @@
 # -*- coding: utf-8 -*-
 import threading
 from collections import defaultdict, deque
+from datetime import datetime
+from socket import gethostname
 from time import sleep
 from unittest import TestCase
+from uuid import uuid4
 
 from google.cloud.pubsub_v1 import futures
-from jsonschema import ValidationError
+from jsonschema import ValidationError as SchemaValidationError
 
 from pubsub.adapters.base import BaseAdapter
 from pubsub.protocol import Protocol
 from pubsub.serializers.serializer import JSONSerializer
-from pubsub.validators.validator import SchemaValidator
+from pubsub.validators.validator import SchemaValidator, ValidationError
 
 
 class MockGoogleAdapter(BaseAdapter):
@@ -20,6 +23,9 @@ class MockGoogleAdapter(BaseAdapter):
 
     def __init__(self, client_identifier):
         self.client_id = client_identifier
+        self._messages = defaultdict(deque)
+
+    def clear_messages(self):
         self._messages = defaultdict(deque)
 
     def publish(self, channel, message):
@@ -34,11 +40,12 @@ class MockGoogleAdapter(BaseAdapter):
 
         def create_message():
             sleep(0.1)
-            r = MockMessage(self._messages[channel].pop())
-            try:
-                return callback(r)
-            except Exception as exc:
-                future.set_exception(exc)
+            while self._messages[channel]:
+                r = MockMessage(self._messages[channel].pop())
+                try:
+                    return callback(r)
+                except Exception as exc:
+                    future.set_exception(exc)
 
         thread = threading.Thread(target=create_message)
         thread.start()
@@ -95,7 +102,7 @@ class ProtocolTests(TestCase):
             adapter=MockGoogleAdapter('test-client'),
             serializer=JSONSerializer(),
             validator=SchemaValidator())
-        with self.assertRaises(ValidationError):
+        with self.assertRaises(SchemaValidationError):
             protocol.publish('python_test', self.invalid_message)
 
     # Only have one of these just to test its actually working
@@ -106,3 +113,75 @@ class ProtocolTests(TestCase):
     #     sub = protocol.subscribe('python_test')
     #     for message in sub:
     #         assert message == self.valid
+
+
+class TestValidationErrorPublisher(TestCase):
+    @classmethod
+    def setUp(cls):
+        cls.valid_message = {
+            'schema': 'https://raw.githubusercontent.com/Superbalist/python-pubsub/gh-pages/examples/schema/card.json',
+            'familyName': 'foo',
+            'givenName': 'bar',
+        }
+        cls.invalid_message = {
+            'schema': 'https://raw.githubusercontent.com/Superbalist/python-pubsub/gh-pages/examples/schema/card.json',
+            'givenName': 'baz',
+        }
+        cls.protocol = Protocol(
+            adapter=MockGoogleAdapter('test-client'),
+            serializer=JSONSerializer(),
+            validator=SchemaValidator())
+
+    def tearDown(self):
+        self.protocol.adapter.clear_messages()
+
+    def test_publish_error_defaults_to_false(self):
+        with self.assertRaises(ValidationError):
+            self.protocol.publish('python_test', self.invalid_message)
+
+    def test_invalid_message(self):
+        topic = 'validation_error'
+        schema = 'https://raw.githubusercontent.com/Superbalist/python-pubsub/gh-pages/examples/schema/validation-error.json'
+
+        def validation_error_callback(event, exception, protocol):
+            message = {
+                'meta': {
+                    'date': datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
+                    'hostname': gethostname(),
+                    'service': 'example-app',
+                    'uuid': str(uuid4())
+                },
+                'schema': schema
+            }
+            message.update(event=event, errors=[err.message for err in exception.errors])
+            protocol.publish(topic, message)
+
+        def callback(message, data):
+            raise DoneException
+
+        with self.assertRaises(ValidationError):
+            self.protocol.publish('python_test', self.invalid_message, validation_error_callback)
+
+        future = self.protocol.subscribe('validation_error', callback=callback)
+        with self.assertRaises(DoneException):
+            future.result(timeout=1)
+
+    def test_invalid_validation_error_message(self):
+        topic = 'validation_error'
+        schema = 'https://raw.githubusercontent.com/Superbalist/python-pubsub/gh-pages/examples/schema/validation-error.json'
+
+        def validation_error_callback(event, exception, protocol):
+            message = {
+                'meta': {
+                    'date': datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
+                    'hostname': gethostname(),
+                    'service': 'example-app',
+                    'uuid': str(uuid4())
+                },
+                'schema': schema,
+                'errors': [err.message for err in exception.errors]
+            }
+            protocol.publish(topic, message)
+
+        with self.assertRaises(ValidationError):
+            self.protocol.publish('python_test', self.invalid_message, validation_error_callback)

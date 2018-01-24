@@ -1,13 +1,26 @@
 import re
-import jsonschema
-from jsonschema import ValidationError
+
+from jsonschema import Draft4Validator, RefResolver, ValidationError as SchemaValidationError
 
 
-class SchemaValidator():
+class ValidationError(Exception):
+    def __init__(self, errors=None, *args, **kwargs):
+        self.errors = errors
+        super(ValidationError, self).__init__(*args, **kwargs)
+
+
+class BaseValidator(object):
     """
     Validates pubsub messages against specified schema
     """
+    def validate_message(self, message):
+        raise NotImplementedError()
 
+
+class SchemaValidator(BaseValidator):
+    """
+    Validates pubsub messages against specified schema
+    """
     def validate_message(self, message):
         try:
             message.get('schema', None)
@@ -16,18 +29,21 @@ class SchemaValidator():
         except AttributeError:
             raise AttributeError('Message must be json')
         schema_uri = message.get('schema', '')
-        matches = re.findall(r'(.+)://(.+/)?events/(.+)/(.+)/(.+)\.json', schema_uri)
-        if len(matches) >= 1:
-            schema = jsonschema.RefResolver('', '').resolve_remote(schema_uri)
-            jsonschema.validate(message, schema)
-        else:
-            raise ValidationError('Incorrect schema uri')
+        matches = re.findall(r'(.+)://(.+/)?(.+)\.json', schema_uri)
+        if len(matches) < 1:
+            raise SchemaValidationError('Incorrect schema uri: {}'.format(schema_uri))
+        schema = RefResolver('', '').resolve_remote(schema_uri)
+        errors = []
+        for error in Draft4Validator(schema).iter_errors(message):
+            errors.append(error)
+        if errors:
+            raise ValidationError(errors=errors)
 
 
-class EmptyValidator():
+class EmptyValidator(BaseValidator):
     """
     Validates that message is not None
     """
 
     def validate_message(self, message):
-        return True if (message != '') else False
+        return message != ''

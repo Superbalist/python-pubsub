@@ -1,4 +1,5 @@
 from pubsub.serializers.serializer import JSONSerializer
+from pubsub.validators.validator import ValidationError
 
 
 class Protocol(object):
@@ -12,9 +13,14 @@ class Protocol(object):
         self.validator = validator
         self.filter = filter
 
-    def publish(self, topic, message):
+    def publish(self, topic, message, validation_error_callback=None):
         if self.validator:
-            self.validator.validate_message(message)
+            try:
+                self.validator.validate_message(message)
+            except ValidationError as exc:
+                if validation_error_callback:
+                    validation_error_callback(event=message, exception=exc, protocol=self)
+                raise
         serialized = self.serializer.encode(message=message)
         self.adapter.publish(topic, serialized)
 
