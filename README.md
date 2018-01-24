@@ -75,6 +75,28 @@ future = protocol.subscribe(topic='topic_name', callback=callback, exception_han
 protocol.publish('topic_name', 'Message')
 ```
 
+`protocol.publish` also supports a custom `validation_error_callback`:
+
+```
+from datetime import datetime
+from socket import gethostname
+from uuid import uuid4
+
+
+def validation_error_callback(invalid_message, exception, protocol):
+    message = {
+        'meta': {
+            'date': datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
+            'hostname': gethostname(),
+            'service': 'example-app',
+        },
+        'message': invalid_message,
+        'errors': [err.message for err in exception.errors]
+    }
+    protocol.publish('invalid-messages', message)
+protocol.publish(topic, example_message, validation_error_callback)
+```
+
 ## Tests
 
 The tests currently use a MockGooglePubsub adapter to test code functionality rather than GooglePubsub connection.
