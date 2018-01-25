@@ -6,7 +6,7 @@ class BaseAdapter(object):
     def publish(self, channel, message):
         raise NotImplementedError('Not implemented')
 
-    def subscribe(self, channel, callback):
+    def subscribe(self, channel, callback, create_topic=False):
         raise NotImplementedError('Not implemented')
 
     def ack(self, message):
