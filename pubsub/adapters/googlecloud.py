@@ -34,9 +34,9 @@ class GooglePubsub(BaseAdapter):
             self.publisher.create_topic(topic_path)
         self.publisher.publish(topic_path, message)
 
-    def subscribe(self, topic_name, callback):
+    def subscribe(self, topic_name, callback, create_topic=False):
         # This makes sure the subscription exists
-        self.get_subscription(topic_name)
+        self.get_subscription(topic_name, create_topic)
 
         subscription_path = self.subscriber.subscription_path(self.project_id, '{}.{}'.format(self.client_identifier, topic_name))
 
@@ -44,7 +44,7 @@ class GooglePubsub(BaseAdapter):
         policy = self.subscriber.subscribe(subscription_path)
         return policy.open(callback=callback)
 
-    def get_subscription(self, topic_name):
+    def get_subscription(self, topic_name, create_topic=False):
         if not self.client_identifier:
             raise IdentifierRequiredException("Use obj.set_client_identifier('name')")
 
@@ -61,7 +61,9 @@ class GooglePubsub(BaseAdapter):
         except GaxError as exc:
             if exc.cause._state.code != StatusCode.NOT_FOUND:
                 raise
-            raise TopicNotFound("Can't subscribe to unknown topic: {}".format(topic_name))
+            if not create_topic:
+                raise TopicNotFound("Can't subscribe to unknown topic: {}".format(topic_name))
+            self.publisher.create_topic(topic_path)
 
     def delete_topic(self, topic_name):
         topic_path = self.publisher.topic_path(self.project_id, topic_name)
