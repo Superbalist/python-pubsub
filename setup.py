@@ -10,6 +10,7 @@ setup(
     install_requires=[
         'google.cloud.pubsub==0.29.0',
         'jsonschema',
+        'requests',
     ],
     packages=find_packages(),
     zip_safe=False)
