@@ -24,6 +24,18 @@ class Protocol(object):
         serialized = self.serializer.encode(message=message)
         self.adapter.publish(topic, serialized)
 
+    def bulk_publish(self, topic, messages, validation_error_callback=None):
+        if self.validator:
+            for message in messages:
+                try:
+                    self.validator.validate_message(message)
+                except ValidationError as exc:
+                    if validation_error_callback:
+                        validation_error_callback(event=message, exception=exc, protocol=self)
+                    raise
+        serialized = self.serializer.encode(message=dict(messages=messages))
+        self.adapter.bulk_publish(topic, serialized)
+
     def subscribe(
             self, topic, callback, create_topic=False, exception_handler=lambda x, y: None, always_raise=True):
 
