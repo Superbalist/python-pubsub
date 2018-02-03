@@ -13,7 +13,7 @@ class HttpAdapter(object):
         # We could use json=, but the message is already dumped and encoded
         response = self.session.post(
             '{}/messages/{}'.format(self.base_url, channel),
-            data=b'{"messages": [{}]}'.format(message), headers={'Content-Type': 'application/json'})
+            data=b'{"messages": [%b]}' % message, headers={'Content-Type': 'application/json'})
         response.raise_for_status()
         return response.json()
 
