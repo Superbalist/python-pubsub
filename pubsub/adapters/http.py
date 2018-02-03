@@ -17,8 +17,5 @@ class HttpAdapter(object):
         response.raise_for_status()
         return response.json()
 
-    def subscribe(self, channel, callback, create_topic=False):
-        raise NotImplementedError('Not implemented')
-
     def ack(self, message):
         pass
