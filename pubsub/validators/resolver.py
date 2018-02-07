@@ -37,9 +37,7 @@ class CachingRefResolver(RefResolver):
 
     """
     def __init__(self, cache=None, *args, **kwargs):
-        if cache is None:
-            cache = SimpleCache()
-        self.cache = cache
+        self.cache = cache or SimpleCache()
         super(CachingRefResolver, self).__init__(*args, **kwargs)
 
     def resolve_from_url(self, url):

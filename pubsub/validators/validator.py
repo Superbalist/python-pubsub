@@ -19,9 +19,7 @@ class BaseValidator(object):
 
 class SchemaValidator(BaseValidator):
     def __init__(self, resolver=None):
-        if resolver is None:
-            resolver = RefResolver('', '')
-        self.resolver = resolver
+        self.resolver = resolver or RefResolver('', '')
 
     """
     Validates pubsub messages against specified schema
