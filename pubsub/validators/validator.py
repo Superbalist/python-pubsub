@@ -18,6 +18,9 @@ class BaseValidator(object):
 
 
 class SchemaValidator(BaseValidator):
+    def __init__(self, resolver=None):
+        self.resolver = resolver or RefResolver('', '')
+
     """
     Validates pubsub messages against specified schema
     """
@@ -32,9 +35,10 @@ class SchemaValidator(BaseValidator):
         matches = re.findall(r'(.+)://(.+/)?(.+)\.json', schema_uri)
         if len(matches) < 1:
             raise SchemaValidationError('Incorrect schema uri: {}'.format(schema_uri))
-        schema = RefResolver('', '').resolve_remote(schema_uri)
+        schema = self.resolver.resolve_from_url(schema_uri)
+
         errors = []
-        for error in Draft4Validator(schema).iter_errors(message):
+        for error in Draft4Validator(schema, resolver=self.resolver).iter_errors(message):
             errors.append(error)
         if errors:
             raise ValidationError(errors=errors)
