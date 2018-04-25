@@ -4,11 +4,11 @@ setup(
     name='pubsub.py',
     author='Superbalist Engineering',
     author_email='tech@superbalist.com',
-    version='0.3.7',
+    version='0.3.8',
     description='Python PubSub Adapter for gcloud',
     url='https://github.com/Superbalist/python-pubsub',
     install_requires=[
-        'google.cloud.pubsub==0.29.0',
+        'google.cloud.pubsub==0.33.1',
         'jsonschema',
         'requests',
     ],
