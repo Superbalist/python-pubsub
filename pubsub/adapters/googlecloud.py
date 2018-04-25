@@ -1,7 +1,7 @@
 import logging
 
+from google.api_core.exceptions import GoogleAPICallError
 from google.cloud import pubsub_v1
-from google.gax.errors import GaxError
 from grpc import StatusCode
 
 from pubsub.adapters.base import BaseAdapter
@@ -28,8 +28,8 @@ class GooglePubsub(BaseAdapter):
         topic_path = self.publisher.topic_path(self.project_id, topic_name)
         try:
             self.publisher.get_topic(topic_path)
-        except GaxError as exc:
-            if exc.cause._state.code != StatusCode.NOT_FOUND:
+        except GoogleAPICallError as exc:
+            if exc.grpc_status_code != StatusCode.NOT_FOUND:
                 raise
             self.publisher.create_topic(topic_path)
         self.publisher.publish(topic_path, message)
@@ -51,15 +51,15 @@ class GooglePubsub(BaseAdapter):
         subscription_path = self.subscriber.subscription_path(self.project_id, '{}.{}'.format(self.client_identifier, topic_name))
         try:
             return self.subscriber.get_subscription(subscription_path)
-        except GaxError as exc:
-            if exc.cause._state.code != StatusCode.NOT_FOUND:
+        except GoogleAPICallError as exc:
+            if exc.grpc_status_code != StatusCode.NOT_FOUND:
                 raise
 
         topic_path = self.subscriber.topic_path(self.project_id, topic_name)
         try:
             return self.subscriber.create_subscription(subscription_path, topic_path)
-        except GaxError as exc:
-            if exc.cause._state.code != StatusCode.NOT_FOUND:
+        except GoogleAPICallError as exc:
+            if exc.grpc_status_code != StatusCode.NOT_FOUND:
                 raise
             if not create_topic:
                 raise TopicNotFound("Can't subscribe to unknown topic: {}".format(topic_name))
@@ -69,8 +69,8 @@ class GooglePubsub(BaseAdapter):
         topic_path = self.publisher.topic_path(self.project_id, topic_name)
         try:
             self.publisher.delete_topic(topic_path)
-        except GaxError as exc:
-            if exc.cause._state.code != StatusCode.NOT_FOUND:
+        except GoogleAPICallError as exc:
+            if exc.grpc_status_code != StatusCode.NOT_FOUND:
                 raise
             raise TopicNotFound("Can't delete unknown topic: {}".format(topic_path))
 
@@ -78,8 +78,8 @@ class GooglePubsub(BaseAdapter):
         subscription_path = self.subscriber.subscription_path(self.project_id, '{}.{}'.format(self.client_identifier, topic_name))
         try:
             self.subscriber.delete_subscription(subscription_path)
-        except GaxError as exc:
-            if exc.cause._state.code != StatusCode.NOT_FOUND:
+        except GoogleAPICallError as exc:
+            if exc.grpc_status_code != StatusCode.NOT_FOUND:
                 raise
             raise SubscriptionNotFound("Can't delete unknown subscription: {}".format(subscription_path))
 
