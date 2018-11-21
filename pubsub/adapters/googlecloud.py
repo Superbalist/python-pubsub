@@ -1,3 +1,4 @@
+import functools
 import logging
 
 from google.api_core.exceptions import GoogleAPICallError
@@ -26,12 +27,7 @@ class GooglePubsub(BaseAdapter):
 
     def publish(self, topic_name, message):
         topic_path = self.publisher.topic_path(self.project_id, topic_name)
-        try:
-            self.publisher.get_topic(topic_path)
-        except GoogleAPICallError as exc:
-            if exc.grpc_status_code != StatusCode.NOT_FOUND:
-                raise
-            self.publisher.create_topic(topic_path)
+        self.get_topic(topic_path)
         self.publisher.publish(topic_path, message)
 
     def subscribe(self, topic_name, callback, create_topic=False):
@@ -86,3 +82,12 @@ class GooglePubsub(BaseAdapter):
     def get_topics(self):
         project_path = self.publisher.project_path(self.project_id)
         return self.publisher.list_topics(project_path)
+
+    @functools.lru_cache(maxsize=128)
+    def get_topic(self, topic_path):
+        try:
+            return self.publisher.get_topic(topic_path)
+        except GoogleAPICallError as exc:
+            if exc.grpc_status_code != StatusCode.NOT_FOUND:
+                raise
+            return self.publisher.create_topic(topic_path)
