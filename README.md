@@ -1,6 +1,6 @@
 # pubsub.py
 
-A python abstraction for various puplisher subscribers.
+A python abstraction for various pubsub providers.
 
 [![Author](http://img.shields.io/badge/author-@superbalist-blue.svg?style=flat-square)](https://twitter.com/superbalist)
 [![PyPI](https://img.shields.io/pypi/v/pubsub.py.svg?style=flat-square)](https://pypi.python.org/pypi/pubsub.py)
@@ -9,7 +9,7 @@ A python abstraction for various puplisher subscribers.
 
 ## Adapters
 
-We plan to create python adapters for the following Pubsubs, however currently only the GooglePubsub one is working.
+We plan to create python adapters for the following Pubsub providers, however currently only the GooglePubsub one is working.
 * GoogleCloudAdapter - Working
 * KafkaAdapter - Planned
 * RedisAdapter - Planned
@@ -22,7 +22,7 @@ pip install pubsub.py
 
 ## Usage
 
-* Import the Protocol and any sub-modules you may requre
+* Import the Protocol and any sub-modules you may require
 * Instantiate a Protocol object that that takes the following parameters
   * adapter(Required)
   * serializer
