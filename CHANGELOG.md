@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 [Unreleased]: https://github.com/Superbalist/python-pubsub/compare/0.3.10...HEAD
 [0.3.10]: https://github.com/Superbalist/python-pubsub/compare/0.3.9...0.3.10
-[0.3.9]: https://github.com/Superbalist/python-pubsub/compare/0.3.7...0.3.8
+[0.3.9]: https://github.com/Superbalist/python-pubsub/compare/0.3.8...0.3.9
 [0.3.8]: https://github.com/Superbalist/python-pubsub/compare/0.3.7...0.3.8
 [0.3.7]: https://github.com/Superbalist/python-pubsub/compare/0.3.6...0.3.7
 [0.3.6]: https://github.com/Superbalist/python-pubsub/compare/0.0.1...0.3.6
