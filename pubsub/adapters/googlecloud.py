@@ -31,20 +31,18 @@ class GooglePubsub(BaseAdapter):
 
     def publish(self, topic_name, message):
         if self.pubsub_rest_proxy:
-            self.bulk_publish(topic_name, [message])
-        else:
-            topic_path = self.publisher.topic_path(self.project_id, topic_name)
-            self.get_topic(topic_path)
-            self.publisher.publish(topic_path, message)
+            log.warning("PubSub Rest Proxy configured but not used by `publish()`. Rather use faster `bulk_publish()`")
+        topic_path = self.publisher.topic_path(self.project_id, topic_name)
+        self.get_topic(topic_path)
+        self.publisher.publish(topic_path, message)
 
     def bulk_publish(self, topic_name, messages):
-        if self.pubsub_rest_proxy:
-            response = self.session.post('{}/messages/{}'.format(self.pubsub_rest_proxy, topic_name), json=messages)
-            response.raise_for_status()
-            return response.json()
-        else:
-            for message in messages:
-                self.publish(topic_name, message)
+        if not self.pubsub_rest_proxy:
+            raise NotImplementedError('`bulk_publish()` not possible without a PubSub Rest Proxy')
+        response = self.session.post('{}/messages/{}'.format(self.pubsub_rest_proxy, topic_name), json=messages)
+        response.raise_for_status()
+        return response.json()
+
 
     def subscribe(self, topic_name, callback, create_topic=False):
         # This makes sure the subscription exists
