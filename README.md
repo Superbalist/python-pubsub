@@ -85,10 +85,15 @@ future = protocol.subscribe(topic='topic_name', callback=callback, exception_han
 ### Publish a message to topic
 
 ```python
-protocol.publish('topic_name', 'Message')
+protocol.publish('topic_name', message)
 ```
 
-`protocol.publish` also supports a custom `validation_error_callback`:
+When using a PubSub rest proxy you can make use of the faster `bulk_publish` method
+```python
+protocol.bulk_publish('topic_name', [message])
+```
+
+`protocol.publish` and `protocol.bulk_publish` also support a custom `validation_error_callback`:
 
 ```python
 from datetime import datetime
@@ -108,6 +113,7 @@ def validation_error_callback(invalid_message, exception, protocol):
     protocol.publish('invalid-messages', message)
 
 protocol.publish(topic, example_message, validation_error_callback)
+protocol.bulk_publish(topic, [example_message], validation_error_callback)
 ```
 
 ## Tests
