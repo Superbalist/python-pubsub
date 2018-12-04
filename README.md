@@ -43,10 +43,13 @@ The GooglePubSub Adapter can optionally make use of a [PubSub Rest Proxy](https:
 for faster publishing as messages are dispatched in bulk and published by the proxy.
 
 ```python
+from pubsub.protocol import Protocol
+from pubsub.adapters.googlecloud import GooglePubsub
+
+
 protocol = Protocol(
     adapter=GooglePubsub("GOOGLE_PROJECT_IDENTIFIER", client_identifier="CLIENT_IDENTIFIER", pubsub_rest_proxy="http://127.0.0.1:3000"))
 ```
-
 
 ### Subscribe to a topic
 
@@ -69,6 +72,7 @@ And set an optional `exception_handler`:
 # If you want to capture exceptions, you can create an optional exception handler, like one that uses Sentry
 
 from raven import Client
+
 sentry_client = Client()
 def exception_handler(message, exc):
     sentry_client.captureException()
@@ -90,10 +94,9 @@ protocol.publish('topic_name', 'Message')
 ```python
 from datetime import datetime
 from socket import gethostname
-from uuid import uuid4
 
 
-def validation_error_callback(invalid_message, exception, protocol):
+def validation_error_callback(invalid_message, exception, proto):
     message = {
         'meta': {
             'date': datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
@@ -103,7 +106,8 @@ def validation_error_callback(invalid_message, exception, protocol):
         'message': invalid_message,
         'errors': [err.message for err in exception.errors]
     }
-    protocol.publish('invalid-messages', message)
+    proto.publish('invalid-messages', message)
+
 protocol.publish(topic, example_message, validation_error_callback)
 ```
 
