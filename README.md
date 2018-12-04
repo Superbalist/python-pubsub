@@ -11,7 +11,6 @@ A python abstraction for various pubsub providers.
 
 * GoogleCloudAdapter - Working
 
-
 ## Installation
 
 ```bash
@@ -96,7 +95,7 @@ from datetime import datetime
 from socket import gethostname
 
 
-def validation_error_callback(invalid_message, exception, proto):
+def validation_error_callback(invalid_message, exception, protocol):
     message = {
         'meta': {
             'date': datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
@@ -106,7 +105,7 @@ def validation_error_callback(invalid_message, exception, proto):
         'message': invalid_message,
         'errors': [err.message for err in exception.errors]
     }
-    proto.publish('invalid-messages', message)
+    protocol.publish('invalid-messages', message)
 
 protocol.publish(topic, example_message, validation_error_callback)
 ```

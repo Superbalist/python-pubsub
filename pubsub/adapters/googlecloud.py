@@ -39,10 +39,7 @@ class GooglePubsub(BaseAdapter):
 
     def bulk_publish(self, topic_name, messages):
         if self.pubsub_rest_proxy:
-            # We could use json=, but the message is already dumped and encoded
-            response = self.session.post(
-                '{}/messages/{}'.format(self.pubsub_rest_proxy, topic_name),
-                data=messages, headers={'Content-Type': 'application/json'})
+            response = self.session.post('{}/messages/{}'.format(self.pubsub_rest_proxy, topic_name), json=messages)
             response.raise_for_status()
             return response.json()
         else:
