@@ -43,7 +43,6 @@ class GooglePubsub(BaseAdapter):
         response.raise_for_status()
         return response.json()
 
-
     def subscribe(self, topic_name, callback, create_topic=False):
         # This makes sure the subscription exists
         self.get_subscription(topic_name, create_topic)
