@@ -6,7 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [0.3.10] - 2018-11-21
+## [1.0.0] - 2018-11-21
+- [BREAKING] No longer supports python 2
 - Cache the results of get_topic
 
 ## [0.3.9] - 2018-04-25
@@ -20,8 +21,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [0.3.6] - 2015-12-03
 
-[Unreleased]: https://github.com/Superbalist/python-pubsub/compare/0.3.10...HEAD
-[0.3.10]: https://github.com/Superbalist/python-pubsub/compare/0.3.9...0.3.10
+[Unreleased]: https://github.com/Superbalist/python-pubsub/compare/1.0.0...HEAD
+[1.0.0]: https://github.com/Superbalist/python-pubsub/compare/0.3.9...1.0.0
 [0.3.9]: https://github.com/Superbalist/python-pubsub/compare/0.3.8...0.3.9
 [0.3.8]: https://github.com/Superbalist/python-pubsub/compare/0.3.7...0.3.8
 [0.3.7]: https://github.com/Superbalist/python-pubsub/compare/0.3.6...0.3.7
