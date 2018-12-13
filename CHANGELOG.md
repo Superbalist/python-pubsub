@@ -6,13 +6,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [1.0.0] - 2018-12-04
+## [2.0.0] - 2018-12-04
 - Remove `HTTPAdapter` 
 - Add optional pubsub rest proxy to `GooglePubSub` 
 adapter - see [js-pubsub-rest-proxy](https://github.com/Superbalist/js-pubsub-rest-proxy)
 - Add missing methods to `BaseAdapter` interface
 
-## [0.3.10] - 2018-11-21
+## [1.0.0] - 2018-11-21
+- [BREAKING] No longer supports python 2
 - Cache the results of get_topic
 
 ## [0.3.9] - 2018-04-25
@@ -26,9 +27,9 @@ adapter - see [js-pubsub-rest-proxy](https://github.com/Superbalist/js-pubsub-re
 
 ## [0.3.6] - 2015-12-03
 
-[Unreleased]: https://github.com/Superbalist/python-pubsub/compare/0.3.10...HEAD
-[1.0.0]: https://github.com/Superbalist/python-pubsub/compare/0.3.10...1.0.0
-[0.3.10]: https://github.com/Superbalist/python-pubsub/compare/0.3.9...0.3.10
+[Unreleased]: https://github.com/Superbalist/python-pubsub/compare/2.0.0...HEAD
+[2.0.0]: https://github.com/Superbalist/python-pubsub/compare/1.0.0...2.0.0
+[1.0.0]: https://github.com/Superbalist/python-pubsub/compare/0.3.9...1.0.0
 [0.3.9]: https://github.com/Superbalist/python-pubsub/compare/0.3.8...0.3.9
 [0.3.8]: https://github.com/Superbalist/python-pubsub/compare/0.3.7...0.3.8
 [0.3.7]: https://github.com/Superbalist/python-pubsub/compare/0.3.6...0.3.7
