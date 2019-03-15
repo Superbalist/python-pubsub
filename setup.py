@@ -2,15 +2,15 @@ from setuptools import setup, find_packages
 
 
 setup(
-    name='pubsub.py',
+    name='pubsub-py',
     author='Superbalist Engineering',
     author_email='tech@superbalist.com',
-    version='1.0.0',
+    version='1.0.1',
     description='Python PubSub Adapter for gcloud',
     long_description='Python PubSub Adapter for gcloud',
     url='https://github.com/Superbalist/python-pubsub',
     install_requires=[
-        'google.cloud.pubsub==0.33.1',
+        'google-cloud-pubsub==0.33.1',
         'jsonschema',
         'requests',
     ],
