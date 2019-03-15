@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 
 setup(
-    name='pubsub-py',
+    name='pubsub.py',
     author='Superbalist Engineering',
     author_email='tech@superbalist.com',
     version='1.0.1',
