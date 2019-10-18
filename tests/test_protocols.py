@@ -7,11 +7,13 @@ from time import sleep
 from unittest import TestCase
 from uuid import uuid4
 
+import pytest
 from google.cloud.pubsub_v1 import futures
 from jsonschema import ValidationError as SchemaValidationError
 
 from pubsub.adapters.base import BaseAdapter
 from pubsub.adapters.exceptions import TopicNotFound
+from pubsub.adapters.googlecloud import GooglePubsub
 from pubsub.protocol import Protocol
 from pubsub.serializers.serializer import JSONSerializer
 from pubsub.validators.validator import SchemaValidator, ValidationError
@@ -143,14 +145,21 @@ class ProtocolTests(TestCase):
         with self.assertRaises(SchemaValidationError):
             protocol.publish('python_test', self.invalid_message)
 
-    # Only have one of these just to test its actually working
-    # def test_real_google(self):
-    #     protocol = Protocol(adapter=GooglePubsub(client_identifier='test_'), serializer=JSONSerializer(),
-    #                         validator=SchemaValidator())
-    #     protocol.publish('python_test', self.valid)
-    #     sub = protocol.subscribe('python_test')
-    #     for message in sub:
-    #         assert message == self.valid
+    @pytest.mark.skip(reason="no mock test - provide a project id that you have access to")
+    def test_real_google(self):
+        project_id = ""
+        protocol = Protocol(
+            adapter=GooglePubsub(project_id, client_identifier='test'),
+            serializer=JSONSerializer(),
+            validator=SchemaValidator()
+        )
+        protocol.publish('python_test', self.valid_message)
+
+        def callback(message, data):
+            assert data == self.valid_message
+            raise DoneException()
+
+        protocol.subscribe('python_test', callback)
 
 
 class TestValidationErrorPublisher(TestCase):
