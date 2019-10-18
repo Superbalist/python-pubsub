@@ -5,7 +5,7 @@ setup(
     name="pubsub.py",
     author="Superbalist Engineering",
     author_email="tech@superbalist.com",
-    version="1.1.0-beta",
+    version="1.1.0-beta2",
     description="Python PubSub Adapter for gcloud",
     long_description="Python PubSub Adapter for gcloud",
     url="https://github.com/Superbalist/python-pubsub",
