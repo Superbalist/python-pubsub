@@ -37,7 +37,7 @@ class GooglePubsub(BaseAdapter):
         subscription_path = self.subscriber.subscription_path(self.project_id, '{}.{}'.format(self.client_identifier, topic_name))
 
         log.info('Starting to listen on: %s', subscription_path)
-        policy = self.subscriber.subscribe(subscription_path)
+        policy = self.subscriber.subscribe(subscription_path, callback)
         return policy.open(callback=callback)
 
     def get_subscription(self, topic_name, create_topic=False):
