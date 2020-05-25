@@ -22,9 +22,9 @@ matrix:
     # Meta
     - python: "3.8"
       env: TOXENV=flake8
-    - python: "3.8"
+    - python: "3.6"
       env: TOXENV=manifest
-    - python: "3.8"
+    - python: "3.6"
       env: TOXENV=readme
 
 
