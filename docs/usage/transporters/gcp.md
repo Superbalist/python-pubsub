@@ -3,6 +3,7 @@
 ```python
 from pubsub.transporters.transporters import GooglePubsubTransport
 
+
 t = GooglePubsubTransport(project="sandbox")
 
 payload = """
