@@ -1,6 +1,6 @@
 import logging
 from re import search, compile
-from typing import Optional, Union
+from typing import Optional, Union, Any
 
 from typing.re import Pattern
 
@@ -36,15 +36,17 @@ class BaseProtocol(object):
             self.filter_pattern = compile(pre_filter)
         self.logger.info(self)
 
-    def handle_payload(self, payload: Union[bytes, str]):
+    def handle_payload(self, payload: Any):
+        if not isinstance(payload, (bytes, str)):
+            payload = self.transport.unwrap(payload)
+
         try:
             if not self.regex_filter(payload):
                 return
 
+            message = self.serializer.deserialize(payload)
             if self.wrap_in_message:
-                message = Message(obj=self.serializer.deserialize(payload))
-            else:
-                message = self.serializer.deserialize(payload)
+                message = Message(obj=message)
 
             self.handle_message(message)
         except Exception as exc:

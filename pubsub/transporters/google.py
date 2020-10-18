@@ -60,6 +60,7 @@ class GooglePubsubTransport(BaseTransport):
         future = self.subscriber.subscribe(
             self.subscription_name, callback, **kwargs
         )
+
         try:
             future.result(timeout)
         except Exception as exc:
@@ -69,3 +70,7 @@ class GooglePubsubTransport(BaseTransport):
         finally:
             if delete:
                 self.subscriber.delete_subscription(self.subscription_name)
+
+    @staticmethod
+    def unwrap(message):
+        return message.data

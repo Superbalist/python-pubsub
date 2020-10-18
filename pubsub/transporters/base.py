@@ -15,3 +15,7 @@ class BaseTransport:
 
     def subscribe(self, channel, callback):
         pass
+
+    @staticmethod
+    def unwrap(message):
+        return message
