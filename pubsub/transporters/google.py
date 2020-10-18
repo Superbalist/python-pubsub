@@ -28,7 +28,7 @@ class GooglePubsubTransport(BaseTransport):
         )
 
     def publish(self, topic, message):
-        topic_name = self.subscriber.topic_path(self.project, topic)
+        topic_name = self.publisher.topic_path(self.project, topic)
         try:
             self.publisher.create_topic(topic_name)
         except AlreadyExists:
@@ -45,7 +45,7 @@ class GooglePubsubTransport(BaseTransport):
         delete=False,
         **kwargs,
     ):
-        topic_name = self.subscriber.topic_path(self.project, topic)
+        topic_name = self.publisher.topic_path(self.project, topic)
         if create:
             try:
                 self.subscriber.create_subscription(
