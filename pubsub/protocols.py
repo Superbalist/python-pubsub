@@ -41,10 +41,10 @@ class BaseProtocol(object):
             if not self.regex_filter(payload):
                 return
 
-            message = self.serializer.deserialize(payload)
-
             if self.wrap_in_message:
-                message = Message(obj=message)
+                message = Message(obj=self.serializer.deserialize(payload))
+            else:
+                message = self.serializer.deserialize(payload)
 
             self.handle_message(message)
         except Exception as exc:

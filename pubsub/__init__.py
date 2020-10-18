@@ -23,7 +23,7 @@ from pubsub.validators import (
 )
 
 
-__version__ = "2.0.5-alpha"
+__version__ = "2.0.6-alpha"
 
 __all__ = (
     # helpers
