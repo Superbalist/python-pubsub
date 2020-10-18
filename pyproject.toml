@@ -1,0 +1,83 @@
+[build-system]
+requires = ["flit_core >=2,<3"]
+build-backend = "flit_core.buildapi"
+
+[tool.flit.metadata]
+module = "pubsub2"
+author = "Superbalist"
+author-email = "developers@superbalist.com"
+classifiers = ["License :: OSI Approved :: MIT License"]
+requires-python = "~=3.7"
+
+[tool.flit.metadata.requires-extra]
+google = [
+    "google-cloud-pubsub >=1.1"
+]
+redis = [
+    "redis >=3.3"
+]
+ujson = [
+	"ujson"
+]
+orjson = [
+	"orjson"
+]
+rapidjson = [
+	"python-rapidjson"
+]
+msgpack = [
+    "msgpack"
+]
+jsonschema = [
+	"jsonschema"
+]
+test = [
+    "pytest",
+    "pytest-cov",
+    "pytest-json-report",
+    "pytest-asyncio",
+    "pytest-xdist",
+    "respx",
+    "mypy",
+    "humanize",
+    "watchgod",
+    "docker"
+]
+doc = [
+    "mkdocs",
+    "mkdocs-material",
+    "markdown-include",
+    "pygments",
+    "mkdocs-awesome-pages-plugin",
+	"pymdown-extensions"
+]
+dev = [
+    "pip~=20.0.0",
+    "black",
+    "flake8",
+    "icecream",
+    "coverage-badge",
+    "tabulate",
+    "requests_download",
+    "ptpython"
+]
+all = [
+    "tenacity",
+    "pytest",
+    "pytest-cov",
+    "mypy",
+    "mkdocs",
+    "mkdocs-material",
+    "markdown-include",
+    "black",
+    "ujson",
+    "orjson",
+    "python-rapidjson",
+    "tabulate",
+    "httpx",
+    "jsonschema",
+]
+
+[tool.black]
+line-length = 79
+target-version = ['py37','py38']

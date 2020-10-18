@@ -1,0 +1,35 @@
+{
+    "schema": "http://example.com/events/cart/created/1.0.json",
+    "meta": {
+        "date": "2017-02-01T12:39:12+00:00",
+        "uuid": "55e3d799-1ea5-48ab-b8ab-a1fb8460d448",
+        "hostname": "service-name-1935885982-59xk1"
+    },
+    "cart": {
+        "id": 1872361,
+        "is_expired": false,
+        "user": {
+            "id": 3563,
+            "email": "arthur@example.com",
+            "first_name": "Arthur",
+            "last_name": "Dent"
+        },
+        "items": [
+            {
+                "id": 4676887,
+                "sku": "AU1M8SAFIY",
+                "url": "https://example.com/4676887",
+                "name": "Twinings Of London English Breakfast Tea - 100 bags",
+                "brand": "Twinings of London",
+                "unit_price": "123.99",
+                "retail_price": "149.00",
+                "is_discounted": false,
+                "asset": {
+                    "path": null,
+                    "mimetype": "",
+                    "ratio": 70
+                }
+            },
+        ]
+    }
+}

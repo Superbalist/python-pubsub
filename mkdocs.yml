@@ -1,0 +1,60 @@
+site_name: Python PubSub
+site_author: Superbalist
+repo_url: https://github.com/Superbalist/python-pubsub-v2
+repo_name: edit documentation
+edit_uri: edit/master/docs/
+
+docs_dir: 'docs'
+site_dir: 'site'
+
+theme:
+    name: 'material'
+#    feature:
+#        tabs: true
+#    palette:
+#        primary: 'teal'
+#        accent: 'amber'
+
+copyright: Superbalist
+
+plugins:
+  - search
+  - awesome-pages:
+      collapse_single_pages: true
+
+markdown_extensions:
+  - codehilite
+  - pymdownx.arithmatex
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.critic
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_generator: !!python/name:pymdownx.emoji.to_svg
+  - pymdownx.inlinehilite
+  - pymdownx.magiclink
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+  - meta
+  - footnotes
+  - toc:
+      permalink: true
+
+nav:
+    - Home: 'index.md'
+    - 'Usage':
+        - 'Protocols':
+              - 'Base protocol': 'usage/protocols/base.md'
+              - 'Custom protocol': 'usage/protocols/custom-protocol.md'
+        - 'Transporters':
+              - 'Google Cloud': 'usage/transporters/gcp.md'
+              - 'Redis': 'usage/transporters/redis.md'
+              - 'Http': 'usage/transporters/http.md'
+
+    - 'Coverage': 'coverage.md'
+    - 'Message & Serializer Benchmarks': 'message-benchmarks.md'

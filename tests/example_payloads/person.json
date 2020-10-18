@@ -1,0 +1,11 @@
+{
+  "schema": "https://example.com/person.schema.json",
+  "meta": {
+      "date": "2017-02-01T12:39:12+00:00",
+      "uuid": "55e3d799-1ea5-48ab-b8ab-a1fb8460d448",
+      "hostname": "service-name-1935885982-59xk1"
+  },
+  "firstName": "Zaphod",
+  "lastName": "Beeblebrox",
+  "age": 98
+}
