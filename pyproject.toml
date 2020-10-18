@@ -4,6 +4,7 @@ build-backend = "flit_core.buildapi"
 
 [tool.flit.metadata]
 module = "pubsub"
+dist-name = "python-pubsub"
 author = "Superbalist"
 author-email = "developers@superbalist.com"
 classifiers = ["License :: OSI Approved :: MIT License"]
@@ -41,7 +42,8 @@ test = [
     "mypy",
     "humanize",
     "watchgod",
-    "docker"
+    "docker",
+    "tox"
 ]
 doc = [
     "mkdocs",

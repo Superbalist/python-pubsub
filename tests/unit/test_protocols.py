@@ -2,6 +2,7 @@ from unittest.mock import Mock
 
 from pytest import raises
 
+from pubsub import ValidationError
 from pubsub.helpers import Message
 from pubsub.protocols import BaseProtocol, EchoProtocol
 from pubsub.serializers import BaseSerializer, JsonSerializer
@@ -73,8 +74,7 @@ def test_base_handle_message():
     processor = BaseProtocol(
         transport=BaseTransport(), serializer=BaseSerializer()
     )
-    with raises(NotImplementedError):
-        processor.handle_message({})
+    processor.handle_message({})
 
 
 def test_base_handle_exception():
@@ -83,7 +83,8 @@ def test_base_handle_exception():
         serializer=BaseSerializer(),
         raise_exceptions=False,
     )
-    processor.handle_exception(Exception())
+
+    processor.handle_exception(ValidationError(), "")
 
     processor = BaseProtocol(
         transport=BaseTransport(),
@@ -91,7 +92,7 @@ def test_base_handle_exception():
         raise_exceptions=True,
     )
     with raises(Exception):
-        processor.handle_exception(Exception())
+        processor.handle_exception(ValidationError(), "")
 
 
 def test_echo_protocol(capsys):

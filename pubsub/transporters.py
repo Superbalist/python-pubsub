@@ -4,15 +4,17 @@ import logging
 import httpx
 from google.api_core.exceptions import AlreadyExists
 
-
-import redis
-from google.cloud import pubsub_v1
-from tenacity import (
-    retry,
-    stop_after_attempt,
-    retry_if_exception_type,
-    wait_exponential,
-)
+try:
+    import redis
+    from google.cloud import pubsub_v1
+    from tenacity import (
+        retry,
+        stop_after_attempt,
+        retry_if_exception_type,
+        wait_exponential,
+    )
+except ImportError:  # pragma: no cover
+    pass
 
 
 BASE_URL_HTTP_DEFAULT = "http://127.0.0.1:3000/messages/"
