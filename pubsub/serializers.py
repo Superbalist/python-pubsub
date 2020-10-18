@@ -77,8 +77,11 @@ class UJsonSerializer(BaseSerializer):
 
 
 class MessagePackSerializer(BaseSerializer):
-    def deserialize(self, payload: bytes) -> object:
+    def deserialize(self, payload: Union[str, bytes]) -> object:
         try:
+            if isinstance(payload, str):
+                payload = payload.encode()
+
             return msgpack.unpackb(payload)
         except Exception as e:
             raise SerializerException(e)

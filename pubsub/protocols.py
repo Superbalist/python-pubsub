@@ -2,7 +2,6 @@ import logging
 from re import search, compile
 from typing import Optional, Union
 
-from google.cloud import pubsub_v1
 from typing.re import Pattern
 
 from pubsub.helpers import Message
@@ -42,10 +41,10 @@ class BaseProtocol(object):
             if not self.regex_filter(payload):
                 return
 
+            message = self.serializer.deserialize(payload)
+
             if self.wrap_in_message:
-                message = Message(obj=self.serializer.deserialize(payload))
-            else:
-                message = self.serializer.deserialize(payload)
+                message = Message(obj=message)
 
             self.handle_message(message)
         except Exception as exc:
