@@ -72,5 +72,5 @@ class GooglePubsubTransport(BaseTransport):
                 self.subscriber.delete_subscription(self.subscription_name)
 
     @staticmethod
-    def unwrap(message):
+    def get_payload(message):
         return message.data

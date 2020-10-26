@@ -1,10 +1,9 @@
 import logging
 from re import search, compile
 from typing import Optional, Union, Any
-
 from typing.re import Pattern
 
-from pubsub.helpers import Message
+from pubsub import Message
 from pubsub.serializers import BaseSerializer
 from pubsub.transporters import BaseTransport
 
@@ -36,24 +35,23 @@ class BaseProtocol(object):
             self.filter_pattern = compile(pre_filter)
         self.logger.info(self)
 
-    def handle_payload(self, payload: Any):
-        if not isinstance(payload, (bytes, str)):
-            payload = self.transport.unwrap(payload)
-
+    def handle_callback(self, message: Any):
         try:
+            payload = self.transport.get_payload(message)
+
             if not self.regex_filter(payload):
                 return
 
             message = self.serializer.deserialize(payload)
             if self.wrap_in_message:
-                message = Message(obj=message)
+                message = Message(obj=payload)
 
-            self.handle_message(message)
+            self.handle_message(payload, message)
         except Exception as exc:
             self.handle_exception(exc, payload)
 
-    def handle_message(self, message: Union[Message, dict]):
-        pass
+    def handle_message(self, payload: Union[Message, dict], message: Any) -> bool:
+        raise NotImplementedError
 
     def handle_exception(self, exc: Exception, payload: Union[bytes, str]):
         self.logger.exception(exc, payload)
@@ -70,9 +68,29 @@ class BaseProtocol(object):
         self.transport.publish(channel, self.serializer.serialize(message_obj))
 
     def subscribe(self, channel: str, *args, **kwargs):
-        self.transport.subscribe(channel, callback=self.handle_payload, *args, **kwargs)
+        self.transport.subscribe(channel, callback=self.handle_callback, *args, **kwargs)
 
 
-class EchoProtocol(BaseProtocol):
-    def handle_message(self, message: Union[Message, dict]):
-        print(repr(message))
+class AckingProtocol(BaseProtocol):
+    def handle_callback(self, message: Any):
+        try:
+            payload = self.transport.get_payload(message)
+
+            if not self.regex_filter(payload):
+                return
+
+            message = self.serializer.deserialize(payload)
+            if self.wrap_in_message:
+                message = Message(obj=payload)
+
+            try:
+                result = self.handle_message(payload, message)
+            except Exception as exc:
+                pass
+            finally:
+
+        except Exception as exc:
+            self.handle_exception(exc, payload)
+
+    def handle_message(self, payload: Union[Message, dict], message: Any) -> bool:
+        raise NotImplementedError

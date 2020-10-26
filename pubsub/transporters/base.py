@@ -17,5 +17,5 @@ class BaseTransport:
         pass
 
     @staticmethod
-    def unwrap(message):
+    def get_payload(message):
         return message
