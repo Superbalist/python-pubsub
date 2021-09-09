@@ -24,7 +24,7 @@ class GooglePubsub(BaseAdapter):
         self.publisher = pubsub_v1.PublisherClient()
         self.subscriber = pubsub_v1.SubscriberClient()
         self.client_identifier = client_identifier
-        self.project_id = project_id
+        self.project_id = f"project/{project_id}"
 
     def ack(self, message):
         message.ack()
@@ -97,7 +97,8 @@ class GooglePubsub(BaseAdapter):
 
     def get_topics(self):
         project_path = self.publisher.project_path(self.project_id)
-        return self.publisher.list_topics(project_path)
+        return self.publisher.list_topics(request={
+        "project": project_path})
 
     @functools.lru_cache(maxsize=128)
     def get_topic(self, topic_path):
